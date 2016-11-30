@@ -10,17 +10,47 @@
 }
 
 body {
-    background-color: #FAFAFA;
+    background-color: #eee;
     font-family: Arial, Helvetica, sans-serif;
 }
+:global(.rst__lineBlock) {
+  display: none !important;
+}
+:global(.rst__lineBlock) {
+  display: none !important;
+}
+
+:global(.rst__highlightLineVertical) {
+  display: none;
+}
+
+:global(.rst__highlightTopLeftCorner) {
+  display: none;
+}
+
+:global(.rst__highlightBottomLeftCorner) {
+  display: none;
+}
+
+:global(.rst__highlightBottomLeftCorner) {
+  display: none;
+}
+
+:global(.rst__node) {
+  border-top: 1px solid rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+
+
 
 /**
  * Uncomment to simulate bootstrap environment
- */
-// html {
-//     box-sizing: border-box;
-// }
+) */
+html {
+    box-sizing: border-box;
+}
 
-// *, *::before, *::after {
-//     box-sizing: inherit;
-// }
+*, *::before, *::after {
+    box-sizing: inherit;
+}
