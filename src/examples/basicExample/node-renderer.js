@@ -29,44 +29,15 @@ const NodeRendererDefault = ({
     treeIndex,
     isSearchMatch,
     isSearchFocus,
-    buttons,
+    eye,
     className,
     style = {},
     startDrag: _startDrag,
     endDrag: _endDrag,
     ...otherProps,
 }) => {
-    let handle;
-    if (typeof node.children === 'function' && node.expanded) {
-        // Show a loading symbol on the handle when the children are expanded
-        //  and yet still defined by a function (a callback to fetch the children)
-        handle = (
-            <div className={styles.loadingHandle}>
-                <div className={styles.loadingCircle}>
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                    <div className={styles.loadingCirclePoint} />
-                </div>
-            </div>
-        );
-    } else {
-        // Show the handle used to initiate a drag-and-drop
-        handle = connectDragSource((
-            <div className={styles.moveHandle} />
-        ), { dropEffect: 'copy' });
-    }
 
     const isDraggedDescendant = draggedNode && isDescendant(draggedNode, node);
-
     return (
         <div
             style={{ height: '100%' }}
@@ -108,6 +79,7 @@ const NodeRendererDefault = ({
                     >
                         <div className={styles.rowContents}>
                             <div className={styles.rowLabel}>
+                              {eye && <span>{ eye }</span>}
                                 <span
                                     className={styles.rowTitle +
                                         (node.subtitle ? ` ${styles.rowTitleWithSubtitle}` : '')
@@ -127,14 +99,6 @@ const NodeRendererDefault = ({
                                         }
                                     </span>
                                 }
-                            </div>
-
-                            <div className={styles.rowToolbar}>
-                                {buttons && buttons.map((btn, index) => (
-                                    <div key={index} className={styles.toolbarButton}>
-                                        {btn}
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     </div>

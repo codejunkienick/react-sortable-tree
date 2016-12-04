@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import SortableTree, { toggleExpandedForAll } from '../../index';
 import styles from './stylesheets/app.scss';
 import NodeRenderer from './node-renderer.js';
+import { getNodeAtPath, changeNodeAtPath } from '../../utils/tree-data-utils';
 import '../shared/favicon/apple-touch-icon.png';
 import '../shared/favicon/favicon-16x16.png';
 import '../shared/favicon/favicon-32x32.png';
@@ -10,6 +11,22 @@ import '../shared/favicon/favicon.ico';
 import '../shared/favicon/safari-pinned-tab.svg';
 
 const maxDepth = 5;
+
+const checkDisabledPath = (treeData, fullPath) => {
+  if (fullPath.length < 2) return false;
+
+  const isDisabled = (newPath) => {
+    const node = getNodeAtPath({treeData, path: newPath, getNodeKey: ({ treeIndex }) => treeIndex});
+    if (newPath && newPath.length > 1) {
+      if (node.node.disabled) return true
+      else return isDisabled(newPath.slice(0, newPath.length - 1))
+    } else {
+      return node && node.node.disabled;
+    }
+  }
+
+  return isDisabled(fullPath.slice(0, fullPath.length - 1));
+}
 
 class App extends Component {
     constructor(props) {
@@ -24,6 +41,7 @@ class App extends Component {
             treeData: [
                 {
                   expanded: true,
+                  disabled: true,
                   title: ( 
                     <span style={{fontSize: 14}}>
                       Артём Самофалов, руководитель отдела, +7 965 420-57-12  <a href="">anton@artuganov.ru</a>
@@ -54,14 +72,6 @@ class App extends Component {
                     </span>
                   ),
                 },
-                {
-                  expanded: true,
-                  title: ( 
-                    <span style={{fontSize: 14}}>
-                      Константин Сухарев, менеджер, +7 965 420-57-12  anton@artuganov.ru
-                    </span>
-                  ),
-                },
             ],
         };
 
@@ -70,7 +80,7 @@ class App extends Component {
         this.collapseAll = this.collapseAll.bind(this);
     }
 
-    updateTreeData(treeData) {
+ updateTreeData(treeData) {
         this.setState({ treeData });
     }
 
@@ -112,17 +122,15 @@ class App extends Component {
         }) => {
             const objectString = Object.keys(node)
                 .map(k => (k === 'children' ? 'children: Array' : `${k}: '${node[k]}'`))
-                .join(`,\n   `);
+                .join(',\n   ');
 
             alert( // eslint-disable-line no-alert
-                `Info passed to the button generator:\n\n` +
+                'Info passed to the button generator:\n\n' +
                 `node: {\n   ${objectString}\n},\n` +
                 `path: [${path.join(', ')}],\n` +
                 `treeIndex: ${treeIndex}`
             );
-        };
-
-        const selectPrevMatch = () => this.setState({
+        };        const selectPrevMatch = () => this.setState({
             searchFocusIndex: searchFocusIndex !== null ?
                 ((searchFoundCount + searchFocusIndex - 1) % searchFoundCount) :
                 searchFoundCount - 1,
@@ -134,7 +142,8 @@ class App extends Component {
                 0,
         });
 
-        return (
+
+ return (
             <div>
                 <section className={styles['page-header']}>
                     <h1 className={styles['project-name']}>{projectName}</h1>
@@ -197,6 +206,7 @@ class App extends Component {
                         </span>
                     </form>
 
+
                     <div style={{ height: 850 }}>
                         <SortableTree
                             rowHeight={36}
@@ -207,6 +217,27 @@ class App extends Component {
                             searchFocusOffset={searchFocusIndex}
                             nodeContentRenderer={NodeRenderer}
                             scaffoldBlockPxWidth={16}
+                            generateNodeProps={({node, path}) => ({
+                              eye: (
+                                <button 
+                                  type="button" 
+                                  onClick={() => {
+                                    const newData = changeNodeAtPath({
+                                      path, 
+                                      treeData,
+                                      getNodeKey: ({ treeIndex }) => treeIndex,
+                                      newNode: { 
+                                        ...node, 
+                                        disabled: !node.disabled 
+                                      } 
+                                    })
+                                    this.setState({treeData: newData});
+                                  }}
+                                    >
+                                  { checkDisabledPath(treeData, path) || node.disabled ? 'd' : 'a' }
+                                </button>
+                                  )
+                            })}
                             searchFinishCallback={matches =>
                                 this.setState({
                                     searchFoundCount: matches.length,
